@@ -16,7 +16,7 @@
 #define UART_TX_PIN 4
 #define UART_RX_PIN 5
 
-#define ANGLE_DATA_AVG_NUM  16
+#define ANGLE_DATA_AVG_NUM  4
 
 spin_lock_t *spin_lock_g;
 repeating_timer_t timer_g;
@@ -278,7 +278,7 @@ void  angle_data_process(int16_t* xdata, int16_t *ydata)
         int16_t res = (sum/(ANGLE_DATA_AVG_NUM-2));
         *xdata = res;
     }
-    //uart_printf("xdata=%d ydata=%d\r\n",*xdata, *ydata);
+    uart_printf("xdata=%d ydata=%d\r\n",*xdata, *ydata);
     // int16_t ydata=kxtj3_1057_read_data(0x8);
     // int16_t zdata=kxtj3_1057_read_data(0xA);
     // uart_printf("core0 ad test, ad_data=%d, id=%d,xdata=%d,ydata=%d,zdata=%d\r\n",ad_read_data(),id,xdata,ydata,zdata);
@@ -288,11 +288,11 @@ void angle_for_wave(int16_t xdata, int16_t ydata)
 {
     static uint8_t last_xdir=0, last_ydir=0;
     static uint8_t curr_xdir = 0;
-    if(xdata>1200)
+    if(xdata>600)
     {
         curr_xdir=1;
     }
-    else if(xdata<-1200)
+    else if(xdata<-600)
     {
         curr_xdir=2;
     }
@@ -380,7 +380,6 @@ int main() {
         {
             led_show_flag_g=0;
             wave_info_show();
-            wave_show_select(wave_set);
             angle_data_process(&xdata, &ydata);
         }
         angle_for_wave(xdata, ydata);
