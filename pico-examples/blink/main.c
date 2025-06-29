@@ -198,7 +198,7 @@ void wave_info_show()
         }break;
         case DC_WAVE_SEL:
         {
-            sprintf(buf,"Fre:%04d Hz", 1);
+            sprintf(buf,"Fre:%04d Hz", 0);
             OLED_DrawBMP(0,0, 40, 64, dc_wave);
         }break;
         default:
@@ -287,7 +287,7 @@ void  angle_data_process(int16_t* xdata, int16_t *ydata)
 void angle_for_wave(int16_t xdata, int16_t ydata)
 {
     static uint8_t last_xdir=0, last_ydir=0;
-    static uint8_t curr_xdir = 0;
+    static uint8_t curr_xdir = 0, curr_ydir=0;
     if(xdata>600)
     {
         curr_xdir=1;
@@ -307,10 +307,78 @@ void angle_for_wave(int16_t xdata, int16_t ydata)
         if(curr_xdir == 1)
         {
             wave_set++;
+            if(wave_set>5)
+            {
+                wave_set=5;
+            }
         }
         if(curr_xdir == 2)
         {
             wave_set--;
+            if(wave_set<1)
+            {
+                wave_set=1;
+            }
+        }
+    }
+
+    if(ydata>600)
+    {
+        curr_ydir=1;
+    }
+    else if(ydata<-600)
+    {
+        curr_ydir=2;
+    }
+    else if((ydata>-200) && (ydata<200))
+    {
+        curr_ydir=4;
+    }
+
+    if(last_ydir != curr_ydir)
+    {
+        last_ydir = curr_ydir;
+        if(curr_ydir == 1)
+        {
+            if(wave_fre>1000)
+            {
+                wave_fre+=1000;
+            }
+            else if((wave_fre>=100) && (wave_fre<=1000))
+            {
+                wave_fre+=100;
+            }
+            else if((wave_fre>=10) && (wave_fre<100))
+            {
+                wave_fre+=10;
+            }
+            else if((wave_fre>=1) && (wave_fre<10))
+            {
+                wave_fre+=1;
+            }
+        }
+        if(curr_ydir == 2)
+        {
+            if(wave_fre>1000)
+            {
+                wave_fre-=1000;
+            }
+            else if((wave_fre>100) && (wave_fre<=1000))
+            {
+                wave_fre-=100;
+            }
+            else if((wave_fre>10) && (wave_fre<=100))
+            {
+                wave_fre-=10;
+            }
+            else if((wave_fre>1) && (wave_fre<=10))
+            {
+                wave_fre-=1;
+            }
+            else
+            {
+                wave_fre = 1;
+            }
         }
     }
 }
